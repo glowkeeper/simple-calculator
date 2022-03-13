@@ -1,0 +1,23 @@
+* {
+  margin: 0;
+  padding: 0;
+  
+  box-sizing: border-box;
+  
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  display: grid;
+  place-items: center;
+
+  height: 100vh;
+
+  /*90deg = to right*/
+  background: linear-gradient(90deg, rgb(185, 185, 201) 0%, rgb(146, 97, 59) 100%);
+}
+

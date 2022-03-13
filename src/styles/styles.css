@@ -18,6 +18,34 @@ body {
   height: 100vh;
 
   /*90deg = to right*/
-  background: linear-gradient(90deg, rgb(185, 185, 201) 0%, rgb(146, 97, 59) 100%);
+  background: linear-gradient(90deg, rgb(219, 203, 198) 0%, rgb(129, 43, 43) 100%);
+}
+
+main {
+  background-color: rgb(116, 86, 86);
+  box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px;
+  padding: 30px;
+  border-radius: 10px;
+}
+
+#display {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-auto-rows: 2rem;
+  margin-bottom: 4px;
+  justify-content: center;
+}
+
+#keyboard {
+  display: grid;
+  grid-template-columns: repeat(4, 3rem);
+  grid-auto-rows: 2rem;
+  gap:4px;
+  justify-content: center;
+}
+
+.answer {
+  color:tomato;
+  font-style: italic;
 }
 

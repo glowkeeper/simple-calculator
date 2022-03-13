@@ -1,6 +1,7 @@
 {
   "name": "simple-calculator",
   "author": "Dr Steve Huckle <steve.huckle@gmail.com> (https://glowkeeper.github.io/)",
+  "homepage": "https://glowkeeper.github.io/simple-calculator",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -9,6 +10,8 @@
     "react-scripts": "5.0.0"
   },
   "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "jasmine",
@@ -32,6 +35,7 @@
     ]
   },
   "devDependencies": {
+    "gh-pages": "^3.2.3",
     "jasmine": "^4.0.2"
   }
 }

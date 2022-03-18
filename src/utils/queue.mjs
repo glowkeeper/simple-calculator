@@ -9,13 +9,13 @@ export const queue = () => {
 
     function enQueue(data) {
 
-        let newNode = {data : data, next : rear, previous: null};
+        let newNode = {data : data, next : null, previous: rear};
 
         if (!head) {
             head = newNode;
             rear = newNode;
         } else {
-            rear.previous = newNode;
+            rear.next = newNode;
             rear = newNode;
         }
 
@@ -24,10 +24,18 @@ export const queue = () => {
 
     function deQueue() {
         const thisHead = head;
-        const nextHead = head.previous;
+        const nextHead = head.next;
         head = nextHead;
         size--;
         return thisHead.data;
+    }
+
+    function front() {
+        return head.data;
+    }
+
+    function back() {
+        return rear.data;
     }
 
     function getSize() {
@@ -40,11 +48,11 @@ export const queue = () => {
         let current = head;
         while (current) {
             list.push(current.data);
-            current = current.previous;
+            current = current.next;
         }
         
         return list;
     }
 
-    return { enQueue, deQueue, getSize, toArray };
+    return { enQueue, deQueue, front, back, getSize, toArray };
 }

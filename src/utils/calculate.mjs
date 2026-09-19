@@ -43,29 +43,49 @@ const isNumeric = (char) => {
     return !isNaN(parseFloat(char)) && isFinite(char);
 }
 
-const clean = (infix) => {
-    for(let i = 0; i < infix.length; i++) {
-        if(infix[i] === "") {
-            infix.splice(i, 1);
+const tokenize = (equation) => {
+    if (typeof equation !== 'string') return null;
+    if (/[\d.]\s+[\d.]/.test(equation)) return null;
+
+    const compactEquation = equation.replace(/\s+/g, '');
+    if (!compactEquation) return [];
+
+    const tokens = compactEquation.match(/(?:\d+(?:\.\d*)?|\.\d+|[+\-*/^()])/g);
+    if (!tokens || tokens.join('') !== compactEquation) return null;
+
+    let expectingNumber = true;
+    let parenthesisDepth = 0;
+
+    for (const token of tokens) {
+        if (isNumeric(token)) {
+            if (!expectingNumber) return null;
+            expectingNumber = false;
+        } else if (token === '(') {
+            if (!expectingNumber) return null;
+            parenthesisDepth++;
+        } else if (token === ')') {
+            if (expectingNumber || parenthesisDepth === 0) return null;
+            parenthesisDepth--;
+            expectingNumber = false;
+        } else {
+            if (expectingNumber) return null;
+            expectingNumber = true;
         }
     }
-    return infix;
+
+    if (expectingNumber || parenthesisDepth !== 0) return null;
+    return tokens;
 }
 
 /*
 infix -> RPN
 */
-const infixToRPN = (infix) => {
+const infixToRPN = (infixTokens) => {
 
     const outputQueue = queue();
     const operatorStack = stack();
     
-    infix = infix.replace(/\s+/g, "");
-    const infixArray = infix.split(/([+\-*/^()])/)
-    const myInfixArray = clean(infixArray);
-    //console.log('infix', myInfixArray)
-
-    for (const token of myInfixArray) {
+    for (const token of infixTokens) {
 
         if(isNumeric(token)) {
 
@@ -122,7 +142,8 @@ const evalRPN = (rPNTokens) => {
     for (const token of rPNTokens) {
 
       if (Object.prototype.hasOwnProperty.call(operators, token)) {
-          
+        if (myStack.getSize() < 2) return null;
+
         const n2 = Number(myStack.pop());
         const n1 = Number(myStack.pop());
 
@@ -134,6 +155,7 @@ const evalRPN = (rPNTokens) => {
       }
     }
   
+    if (myStack.getSize() !== 1) return null;
     return Number(myStack.pop());
 };
 
@@ -141,14 +163,16 @@ const evalRPN = (rPNTokens) => {
 Exposed function - call this with a string conaining the (infix) equation to evaluate 
 */
 export const calculate = (equation) => {
-    const rpn = infixToRPN(equation);
+    const tokens = tokenize(equation);
+    if (!tokens || !tokens.length) return null;
+
+    const rpn = infixToRPN(tokens);
     if (rpn.length) {
         const answer = evalRPN(rpn);
-        if ( isFinite( answer) ) {
+        if (answer !== null && isFinite(answer)) {
             return answer
         }
         return null
     }
     return null    
 }
-

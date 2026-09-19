@@ -15,6 +15,8 @@ export const stack = () => {
     }
 
     function pop() {
+        if (!head) return null;
+
         const oldHead = head;
         head = oldHead.next;
         size--;

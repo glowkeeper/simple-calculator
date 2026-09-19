@@ -1,51 +1,86 @@
 /* eslint-disable no-undef */
 import { calculate } from '../src/utils/calculate.mjs';
 
-describe('addition', function() {
-    it('correctly adds', function() {
-        const answer = calculate("3 + 4 + 6");
-        expect(answer).toEqual(13);
-    })
-})
+describe('calculate', () => {
+    describe('basic arithmetic', () => {
+        const examples = [
+            ['3 + 4 + 6', 13],
+            ['15 - 4 - 2', 9],
+            ['50 / 5 / 2', 5],
+            ['3 * 3 * 3', 27],
+            ['3.5 + 2.25', 5.75],
+            ['42', 42]
+        ];
 
-describe('subtraction', function() {
-    it('correctly subtracts', function() {
-        const answer = calculate("15 - 4 - 2");
-        expect(answer).toEqual(9);
-    })
-})
+        for (const [expression, expected] of examples) {
+            it(`evaluates ${expression}`, () => {
+                expect(calculate(expression)).toBe(expected);
+            });
+        }
+    });
 
-describe('division', function() {
-    it('correctly divides', function() {
-        const answer = calculate("50 / 5 / 2");
-        expect(answer).toEqual(5);
-    })
-})
+    describe('precedence and associativity', () => {
+        it('applies multiplication before addition', () => {
+            expect(calculate('3 + 4 * 5')).toBe(23);
+        });
 
-describe('multiplication', function() {
-    it('correctly multiplies', function() {
-        const answer = calculate("3 * 3 * 3");
-        expect(answer).toEqual(27);
-    })
-})
+        it('honours parentheses', () => {
+            expect(calculate('(3 + 4) * 5')).toBe(35);
+        });
 
-describe('power', function() {
-    it('correctly calculates the power', function() {
-        const answer = calculate("10 ^ 2 ^ 2");
-        expect(answer).toEqual(10000);
-    })
-})
+        it('supports nested parentheses', () => {
+            expect(calculate('2 * (3 + (4 * 5))')).toBe(46);
+        });
 
-describe('precedence', function() {
-    it('correctly accounts for operator precedence', function() {
-        const answer = calculate("3 + 4 * 5");
-        expect(answer).toEqual(23);
-    })
-})
+        it('evaluates subtraction from left to right', () => {
+            expect(calculate('20 - 5 - 3')).toBe(12);
+        });
 
-describe('bracketed precedence', function() {
-    it('correctly accounts for bracketed operator precedence', function() {
-        const answer = calculate("(3 + 4) * 5");
-        expect(answer).toEqual(35);
-    })
-})
+        it('evaluates exponentiation from right to left', () => {
+            expect(calculate('2 ^ 3 ^ 2')).toBe(512);
+        });
+
+        it('ignores whitespace', () => {
+            expect(calculate(' 2\t* ( 3 + 4 ) ')).toBe(14);
+        });
+    });
+
+    describe('non-results', () => {
+        it('returns null for an empty expression', () => {
+            expect(calculate('')).toBeNull();
+        });
+
+        it('returns null for a whitespace-only expression', () => {
+            expect(calculate('   ')).toBeNull();
+        });
+
+        it('returns null for division by zero', () => {
+            expect(calculate('1 / 0')).toBeNull();
+        });
+
+        it('returns null when the result overflows', () => {
+            expect(calculate('10 ^ 1000')).toBeNull();
+        });
+
+        const malformedExpressions = [
+            '2 +',
+            '2 + 3)',
+            '(2 + 3',
+            '2..3 + 1',
+            '2abc + 3',
+            '2 + * 3',
+            '()',
+            '2 3'
+        ];
+
+        for (const expression of malformedExpressions) {
+            it(`returns null for malformed expression: ${expression}`, () => {
+                expect(calculate(expression)).toBeNull();
+            });
+        }
+
+        it('returns null for non-string input', () => {
+            expect(calculate(null)).toBeNull();
+        });
+    });
+});

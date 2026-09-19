@@ -22,7 +22,8 @@ Simple react-based calculator.
 ## Built Using
 
 - [node](https://nodejs.org/en/)
-- [Create React App](https://reactjs.org/)
+- [React](https://react.dev/)
+- [Vite](https://vite.dev/)
 - [Jasmine](https://jasmine.github.io/)
 
 ## Install

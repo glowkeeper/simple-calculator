@@ -23,19 +23,22 @@ export const queue = () => {
     }
 
     function deQueue() {
+        if (!head) return null;
+
         const thisHead = head;
         const nextHead = head.next;
         head = nextHead;
+        if (!head) rear = null;
         size--;
         return thisHead.data;
     }
 
     function front() {
-        return head.data;
+        return head ? head.data : null;
     }
 
     function back() {
-        return rear.data;
+        return rear ? rear.data : null;
     }
 
     function getSize() {

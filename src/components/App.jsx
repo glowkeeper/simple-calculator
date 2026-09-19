@@ -33,9 +33,9 @@ export const App = () => {
 
   const handleCalculate = (event) => {
     event.preventDefault();
-    const answer = calculate(calculation);
+    const result = calculate(calculation);
     setCalculation("");
-    setAnswer(answer)
+    setAnswer(result === null ? "Error" : String(result))
   }
 
   return (
@@ -45,11 +45,13 @@ export const App = () => {
           type="text"
           id="display"
           name="calc"
+          aria-label="Calculator display"
+          aria-live="polite"
           value={calculation ? calculation : answer}
         />
-        <div id="keyboard">
+        <div id="keyboard" role="group" aria-label="Calculator keypad">
           <input type="button" value="AC" onClick={handleClear}/>
-          <input type="button" value="()" onClick={handleBrackets}/>
+          <input type="button" value="()" aria-label="Wrap in parentheses" onClick={handleBrackets}/>
           <input type="button" value="^" onClick={handleOperator}/>
           <input type="button" value="/" onClick={handleOperator}/>
 
@@ -70,7 +72,7 @@ export const App = () => {
 
           <input type="button" value="0" onClick={handleOperand}/>
           <input type="button" value="." onClick={handleOperand}/>
-          <input type="button" value="&#9003;" onClick={handleBackspace}/>
+          <input type="button" value="&#9003;" aria-label="Backspace" onClick={handleBackspace}/>
           <input type="button" value="=" onClick={handleCalculate}/>
         </div>   
     </main>

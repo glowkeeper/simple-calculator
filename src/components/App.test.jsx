@@ -134,3 +134,57 @@ describe('tape and workings', () => {
     expect(tapeEntries().length).toBe(1);
   });
 });
+
+describe('physical keyboard', () => {
+  const type = (...keys) => {
+    keys.forEach((key) => {
+      act(() => {
+        document.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+      });
+    });
+  };
+  const display = () => container.querySelector('#display').value;
+
+  test('types an expression and calculates with Enter', () => {
+    type('2', '+', '3');
+    expect(display()).toBe('2 + 3');
+    type('Enter');
+    expect(display()).toBe('5');
+  });
+
+  test('maps x to multiply and supports typed brackets', () => {
+    type('(', '1', '+', '2', ')', 'x', '3', '=');
+    expect(display()).toBe('9');
+  });
+
+  test('Backspace removes an operator along with its spaces', () => {
+    type('2', '+', '3', 'Backspace', 'Backspace');
+    expect(display()).toBe('2');
+  });
+
+  test('Escape clears', () => {
+    type('2', '+', '3', 'Enter', 'Escape');
+    expect(display()).toBe('');
+  });
+
+  test('ignores other keys and shortcuts', () => {
+    type('a', 'Shift', 'Tab');
+    act(() => {
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: '5', ctrlKey: true, bubbles: true }));
+    });
+    expect(display()).toBe('');
+  });
+
+  test('highlights the matching on-screen key', () => {
+    type('7');
+    expect(button('7').classList.contains('pressed')).toBe(true);
+  });
+
+  test('does not calculate twice when Enter is pressed on a focused button', () => {
+    click('2', '+', '3');
+    act(() => {
+      button('7').dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
+    });
+    expect(display()).toBe('2 + 3');
+  });
+});

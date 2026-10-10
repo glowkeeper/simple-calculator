@@ -79,46 +79,71 @@ const tokenize = (equation) => {
 
 /*
 infix -> RPN
+Pass an array as `steps` to have each step of the algorithm recorded in it
 */
-const infixToRPN = (infixTokens) => {
+const infixToRPN = (infixTokens, steps) => {
 
     const outputQueue = queue();
     const operatorStack = stack();
-    
+
+    const record = (token, note) => {
+        if (!steps) return;
+        steps.push({
+            token,
+            note,
+            output: outputQueue.toArray(),
+            stack: operatorStack.toArray().reverse()
+        });
+    }
+
     for (const token of infixTokens) {
 
         if(isNumeric(token)) {
 
             outputQueue.enQueue(token);
+            record(token, "A number goes straight to the output queue");
 
         } else if(Object.prototype.hasOwnProperty.call(operators, token)) {
 
             const o1 = token;
+            const popped = [];
             let o2 = operatorStack.top();
             while (Object.prototype.hasOwnProperty.call(operators, o2) && 
                   ((operators[o1].associativity === "Left" && 
                     operators[o1].precedence <= operators[o2].precedence) || (operators[o1].associativity === "Right" && 
                     operators[o1].precedence < operators[o2].precedence))) {
+                popped.push(o2);
                 outputQueue.enQueue(operatorStack.pop());
                 o2 = operatorStack.top();
             }
             operatorStack.push(o1);
+            record(token, popped.length
+                ? `Pop ${popped.join(", ")} to the output queue (it takes priority), then push ${o1} onto the stack`
+                : `Push ${o1} onto the operator stack`);
 
         } else if(token === "(") {
 
             operatorStack.push(token);
+            record(token, "Push ( onto the operator stack");
 
         } else if(token === ")") {
 
+            const popped = [];
             while(operatorStack.top() !== "(") {
+                popped.push(operatorStack.top());
                 outputQueue.enQueue(operatorStack.pop());
             }
             operatorStack.pop();
+            record(token, popped.length
+                ? `Pop ${popped.join(", ")} to the output queue, then discard the matching (`
+                : "Discard the matching (");
         }
     }
 
     while(operatorStack.getSize()) {
-        outputQueue.enQueue(operatorStack.pop());
+        const op = operatorStack.pop();
+        outputQueue.enQueue(op);
+        record(null, `Input finished, so pop ${op} to the output queue`);
     }
 
     return outputQueue.toArray();
@@ -135,9 +160,13 @@ const evaluate = (n1, n2, operand) => {
     if (operand === '^') return Math.pow(n1, n2);
 };
 
-const evalRPN = (rPNTokens) => {
+const evalRPN = (rPNTokens, steps) => {
     
     const myStack = stack();
+
+    const record = (token, note) => {
+        if (steps) steps.push({ token, note, stack: myStack.toArray().reverse() });
+    }
   
     for (const token of rPNTokens) {
 
@@ -146,12 +175,15 @@ const evalRPN = (rPNTokens) => {
 
         const n2 = Number(myStack.pop());
         const n1 = Number(myStack.pop());
+        const result = evaluate(n1, n2, token);
 
-        myStack.push(evaluate(n1, n2, token));
+        myStack.push(result);
+        record(token, `Pop ${n2} and ${n1}, work out ${n1} ${token} ${n2} = ${result}, push ${result}`);
 
       } else {
 
         myStack.push(token);
+        record(token, `Push ${token}`);
       }
     }
   
@@ -175,4 +207,23 @@ export const calculate = (equation) => {
         return null
     }
     return null    
+}
+
+
+/*
+As calculate, but also returns the working: the tokens, each shunting yard step, the RPN
+and each evaluation step. Returns null if the equation can't be calculated
+*/
+export const trace = (equation) => {
+    const tokens = tokenize(equation);
+    if (!tokens || !tokens.length) return null;
+
+    const parsing = [];
+    const rpn = infixToRPN(tokens, parsing);
+
+    const evaluation = [];
+    const answer = evalRPN(rpn, evaluation);
+    if (answer === null || !isFinite(answer)) return null;
+
+    return { tokens, parsing, rpn, evaluation, answer };
 }

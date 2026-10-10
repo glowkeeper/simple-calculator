@@ -84,3 +84,53 @@ describe('accessibility state', () => {
       .toBe('polite');
   });
 });
+
+describe('tape and workings', () => {
+  const tapeEntries = () => [...container.querySelectorAll('.tape-entry')];
+
+  test('shows an explanation until something has been calculated', () => {
+    expect(container.querySelector('.workings').textContent).toContain('shunting yard');
+    expect(container.querySelector('.tape').textContent).toContain('will be printed here');
+  });
+
+  test('shows the working and tape entry once a sum is calculated', () => {
+    click('2', '+', '3', '=');
+    expect(container.querySelector('.workings').textContent).toContain('Reverse Polish notation');
+    expect(tapeEntries().length).toBe(1);
+    expect(tapeEntries()[0].textContent).toContain('2 + 3');
+    expect(tapeEntries()[0].textContent).toContain('= 5');
+  });
+
+  test('does not record or explain a malformed sum', () => {
+    click('2', '+', '=');
+    expect(container.querySelector('#display').value).toBe('Error');
+    expect(tapeEntries().length).toBe(0);
+    expect(container.querySelector('.working')).toBeNull();
+  });
+
+  test('keeps the newest entry first and can clear the tape', () => {
+    click('1', '+', '1', '=', '2', '*', '3', '=');
+    expect(tapeEntries()[0].textContent).toContain('2 × 3');
+
+    act(() => {
+      [...container.querySelectorAll('.link-button')].find((b) => b.textContent === 'Clear')
+        .dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+    expect(tapeEntries().length).toBe(0);
+  });
+
+  test('recalling a tape entry shows its answer and working again', () => {
+    click('1', '+', '1', '=', '2', '*', '3', '=');
+    act(() => {
+      tapeEntries()[1].dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+    expect(container.querySelector('#display').value).toBe('2');
+    expect(container.querySelector('.result').textContent).toContain('2');
+  });
+
+  test('AC clears the working but keeps the tape', () => {
+    click('2', '+', '3', '=', 'AC');
+    expect(container.querySelector('.working')).toBeNull();
+    expect(tapeEntries().length).toBe(1);
+  });
+});

@@ -1,3 +1,22 @@
+:root {
+  --desk: #2b1f1f;
+  --desk-light: #4a3030;
+  --paper: rgb(219, 203, 198);
+  --ink: #f4ebe8;
+  --ink-muted: #bda9a3;
+  --body: rgb(116, 86, 86);
+  --body-dark: rgb(84, 58, 58);
+  --key: #e9dedb;
+  --key-text: #2b1f1f;
+  --key-operator: #c9a29a;
+  --key-action: #b86a5e;
+  --accent: tomato;
+  --lcd: #d6dccb;
+  --lcd-text: #1f2a1f;
+  --panel: rgba(0, 0, 0, 0.25);
+  --panel-border: rgba(255, 255, 255, 0.1);
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -12,40 +31,373 @@
 }
 
 body {
-  display: grid;
-  place-items: center;
-
-  height: 100vh;
-
-  /*90deg = to right*/
-  background: linear-gradient(90deg, rgb(219, 203, 198) 0%, rgb(129, 43, 43) 100%);
+  min-height: 100vh;
+  color: var(--ink);
+  background:
+    radial-gradient(ellipse at 50% 0%, var(--desk-light) 0%, transparent 60%),
+    var(--desk);
+  background-attachment: fixed;
 }
 
+a {
+  color: var(--paper);
+}
+
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  background: var(--panel);
+  padding: 0 0.3em;
+  border-radius: 3px;
+}
+
+/* Page furniture */
+
+.page {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem 1rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.masthead {
+  text-align: center;
+}
+
+.masthead h1 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.masthead p {
+  margin-top: 0.25rem;
+  color: var(--ink-muted);
+}
+
+.footer {
+  text-align: center;
+  color: var(--ink-muted);
+  font-size: 0.875rem;
+}
+
+/* Layout: tape | calculator | workings */
+
+.bench {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) auto minmax(300px, 2fr);
+  grid-template-areas: "tape device workings";
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.bench > * { min-width: 0; }
+
+.tape { grid-area: tape; }
+main { grid-area: device; }
+.workings { grid-area: workings; }
+
+@media (max-width: 1000px) {
+  .bench {
+    grid-template-columns: 1fr minmax(0, 1fr);
+    grid-template-areas:
+      "device device"
+      "tape workings";
+  }
+  main { justify-self: center; }
+}
+
+@media (max-width: 640px) {
+  .bench {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "device"
+      "workings"
+      "tape";
+  }
+}
+
+/* The calculator */
+
 main {
-  background-color: rgb(116, 86, 86);
-  box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px;
-  padding: 30px;
-  border-radius: 10px;
+  background: linear-gradient(160deg, var(--body) 0%, var(--body-dark) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    rgb(0, 0, 0) 0px 25px 35px -12px;
+  padding: 24px;
+  border-radius: 16px;
 }
 
 #display {
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-auto-rows: 2rem;
-  margin-bottom: 4px;
-  justify-content: center;
+  display: block;
+  width: 100%;
+  height: 4rem;
+  margin-bottom: 16px;
+  padding: 0 14px;
+
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 1.5rem;
+  text-align: right;
+
+  color: var(--lcd-text);
+  background: var(--lcd);
+  border: 0;
+  border-radius: 6px;
+  box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.4);
+}
+
+#display.answer {
+  color: #8a2a1a;
+  font-weight: 600;
 }
 
 #keyboard {
   display: grid;
-  grid-template-columns: repeat(4, 3rem);
-  grid-auto-rows: 2rem;
-  gap:4px;
+  grid-template-columns: repeat(4, 4rem);
+  grid-auto-rows: 3.25rem;
+  gap: 8px;
   justify-content: center;
 }
 
-.answer {
-  color:tomato;
-  font-style: italic;
+#keyboard input {
+  font-size: 1.1rem;
+  color: var(--key-text);
+  background: var(--key);
+  border: 0;
+  border-radius: 8px;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.35);
+  cursor: pointer;
 }
 
+#keyboard input:hover {
+  filter: brightness(1.08);
+}
+
+#keyboard input:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+}
+
+#keyboard input:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+#keyboard input[value="/"],
+#keyboard input[value="*"],
+#keyboard input[value="-"],
+#keyboard input[value="+"],
+#keyboard input[value="^"],
+#keyboard input[value="()"] {
+  background: var(--key-operator);
+}
+
+#keyboard input[value="AC"],
+#keyboard input[value="="] {
+  background: var(--key-action);
+  color: #fff;
+}
+
+/* Side panels */
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  padding: 1rem;
+  min-width: 0;
+}
+
+.panel-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.75rem;
+}
+
+.panel h2,
+.about h2 {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.empty {
+  color: var(--ink-muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.empty p + p {
+  margin-top: 0.75rem;
+}
+
+.link-button {
+  background: none;
+  border: 0;
+  color: var(--paper);
+  font-size: 0.8rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Tape */
+
+.tape-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 28rem;
+  overflow-y: auto;
+}
+
+.tape-entry {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  width: 100%;
+  padding: 0.4rem 0.5rem;
+  background: none;
+  border: 0;
+  border-bottom: 1px dashed var(--panel-border);
+  border-radius: 4px;
+  color: var(--ink);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  cursor: pointer;
+}
+
+.tape-entry:hover,
+.tape-entry:focus-visible {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.tape-entry span {
+  font-family: inherit;
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+.tape-expression {
+  font-size: 0.85rem;
+  color: var(--ink-muted);
+}
+
+.tape-answer {
+  font-size: 1.05rem;
+  color: var(--accent);
+}
+
+/* Workings */
+
+.working h3 {
+  margin: 1rem 0 0.4rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.working h3:first-child {
+  margin-top: 0;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.chip {
+  display: inline-block;
+  min-width: 1.6rem;
+  padding: 0.1rem 0.45rem;
+  text-align: center;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+  color: var(--key-text);
+  background: var(--key);
+  border-radius: 4px;
+}
+
+.chip-empty {
+  background: none;
+  color: var(--ink-muted);
+  font-style: italic;
+  box-shadow: inset 0 0 0 1px var(--panel-border);
+}
+
+td .chip {
+  margin: 0 3px 3px 0;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+th, td {
+  padding: 0.35rem 0.5rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--panel-border);
+}
+
+thead th {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ink-muted);
+}
+
+tbody th {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.result {
+  margin-top: 1rem;
+  font-size: 1.1rem;
+}
+
+.result strong {
+  color: var(--accent);
+}
+
+/* About */
+
+.about {
+  max-width: 48rem;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.about h2 {
+  margin-bottom: 0.5rem;
+}
+
+.about dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.about dt {
+  font-weight: 600;
+}
+
+.about dd {
+  color: var(--ink-muted);
+  font-size: 0.9rem;
+}
+
+.built-with {
+  color: var(--ink-muted);
+  font-size: 0.9rem;
+}

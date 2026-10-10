@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-import { calculate } from '../src/utils/calculate.mjs';
+import { calculate, trace } from '../src/utils/calculate.mjs';
 
 describe('calculate', () => {
     describe('basic arithmetic', () => {
@@ -82,5 +82,39 @@ describe('calculate', () => {
         it('returns null for non-string input', () => {
             expect(calculate(null)).toBeNull();
         });
+    });
+});
+
+describe('trace', () => {
+    it('agrees with calculate', () => {
+        for (const expression of ['3 + 4 * 2', '(1 + 2) * 3', '2 ^ 3 ^ 2', '10 / 4 - 1']) {
+            expect(trace(expression).answer).toBe(calculate(expression));
+        }
+    });
+
+    it('returns the tokens and reverse polish notation', () => {
+        const working = trace('3 + 4 * 2');
+        expect(working.tokens).toEqual(['3', '+', '4', '*', '2']);
+        expect(working.rpn).toEqual(['3', '4', '2', '*', '+']);
+    });
+
+    it('records the queue and stack after every parsing step', () => {
+        const { parsing } = trace('3 + 4');
+        expect(parsing.map((step) => step.token)).toEqual(['3', '+', '4', null]);
+        expect(parsing[1].output).toEqual(['3']);
+        expect(parsing[1].stack).toEqual(['+']);
+        expect(parsing[3].output).toEqual(['3', '4', '+']);
+        expect(parsing[3].stack).toEqual([]);
+    });
+
+    it('records the stack after every evaluation step', () => {
+        const { evaluation } = trace('3 + 4');
+        expect(evaluation.map((step) => step.stack)).toEqual([['3'], ['3', '4'], [7]]);
+    });
+
+    it('returns null when there is nothing to work out', () => {
+        for (const expression of ['', '2 +', '(2', '1 / 0', null]) {
+            expect(trace(expression)).toBeNull();
+        }
     });
 });
